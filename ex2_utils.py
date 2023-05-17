@@ -111,6 +111,7 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     """
     G = cv2.getGaussianKernel(k_size, 1)  # 1D array
     G2 = G.dot(G.T)  # 2D array
+
     return
 
 
