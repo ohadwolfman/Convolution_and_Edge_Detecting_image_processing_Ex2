@@ -63,6 +63,33 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     direction = np.arctan2(derivY,derivX)
     return direction, magnitude
 
+def calculateGaussian1cell(x,y, sigma):
+    """                                                 Y
+    Gaussian mask will be created like this:     -1    0    1
+                                             -1 [-1,-1|-1,0|-1,1]
+                                           X  0 [0,-1 |0,0 |0,1 ]
+                                              1 [1,-1 |1,0 |1,1 ]
+        the center will be the origin (0,0) and the other cells is relatively to it
+    :param x: the x parameter of the cell, for example -1
+    :param y: the y parameter of the cell, for example 1
+    :param sigma: Aka Std, if sigma becomes smaller - the Gaussian filter will become more peaky
+            which means more weight to the central pixels
+    :return: float number [0,1]:
+    """
+    return (1/(2 * np.pi * (sigma**2))) * np.exp(-(x**2+y**2) / (2*(sigma**2)))
+
+def GaussianFilter(window_size, sigma):
+    maxX = window_size//2
+    minX = -maxX
+    maxY = minX
+    minY = maxX
+
+    G = np.zeros((window_size,window_size))
+    for x in range(minX, maxX+1):
+        for y in range(minY, maxY+1):
+            v = calculateGaussian1cell(x,y,sigma)
+            G[x-minX, y-minY] = v
+    return G
 
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     """
