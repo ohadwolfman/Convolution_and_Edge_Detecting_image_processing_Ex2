@@ -26,7 +26,7 @@ def conv1Demo():
 
 
 def conv2Demo():
-    img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread('images/beach.jpg', cv2.IMREAD_GRAYSCALE)
     kernel = np.ones((5, 5))
     kernel = kernel / kernel.sum()
     c_img = conv2D(img, kernel) / 255
@@ -43,7 +43,7 @@ def conv2Demo():
 
 
 def derivDemo():
-    img = cv2.imread('/home/hay/Desktop/master_degree/image processing/Ex2/beach.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('images/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
     ori, mag = convDerivative(img)
 
     f, ax = plt.subplots(1, 2)
@@ -69,7 +69,7 @@ def derivDemo():
 
 
 def blurDemo():
-    img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('images/beach.jpg', cv2.IMREAD_GRAYSCALE) / 255
     k_size = 5
     b1 = blurImage1(img, k_size)
     b2 = blurImage2(img, k_size)
@@ -84,7 +84,7 @@ def blurDemo():
 
 
 def edgeDemoSimple():
-    img = cv2.imread('input/codeMonkey.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('images/codeMonkey.jpg', cv2.IMREAD_GRAYSCALE) / 255
     img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
     edge_matrix = edgeDetectionZeroCrossingSimple(img)
 
@@ -97,7 +97,7 @@ def edgeDemoSimple():
 
 
 def edgeDemoLOG():
-    img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('images/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
     img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
     edge_matrix = edgeDetectionZeroCrossingLOG(img)
 
@@ -115,7 +115,7 @@ def edgeDemo():
 
 
 def houghDemo():
-    img = cv2.imread('coins.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('images/coins.jpg', cv2.IMREAD_GRAYSCALE) / 255
     min_r, max_r = 50, 100
 
     # # TEST WITH YOUR IMPLEMENT ONLY
@@ -147,7 +147,7 @@ def houghDemo():
 
 
 def biliteralFilterDemo():
-    img = cv2.imread('/home/hay/Dropbox/master_degree/image processing/Ex2/boxMan.jpg', cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread('images/boxMan.jpg', cv2.IMREAD_GRAYSCALE)
     # cv2.imwrite("original_image_grayscale.jpg", img)
 
     filtered_image_CV, filtered_image_my = bilateral_filter_implement(img, 9, 8.0, 1.0)
@@ -162,11 +162,11 @@ def main():
     print("ID:", myID())
     # conv1Demo()
     # conv2Demo()
-    # derivDemo()
+    derivDemo()
     # blurDemo()
     # edgeDemo()
     # houghDemo()
-    biliteralFilterDemo()
+    # biliteralFilterDemo()
 
 
 if __name__ == '__main__':

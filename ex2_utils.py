@@ -42,9 +42,11 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     # anchor – indicates the relative position of a filtered point within the kernel, (-1, -1) is the kernel center
     # delta – optional value added to the filtered pixels before storing them in dst.
     # borderType – pixel extrapolation method
+
     return cv2.filter2D(src=in_image, ddepth=-1, kernel=kernel,
                         dst=None, anchor=(-1, -1), delta=0, borderType=cv2.BORDER_DEFAULT)
     # we could write only:     convolved_image = cv2.filter2D(in_image, -1, kernel)
+    # Note that cv2.filter2d (d instead of D) does Correlation and not Convolution!!!
 
 
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
@@ -53,8 +55,13 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     :param in_image: Grayscale iamge
     :return: (directions, magnitude)
     """
+    derivKernel = np.array([1,0,-1])
+    derivX = conv2D(in_image,derivKernel.transpose())
+    derivY = conv2D(in_image,derivKernel)
 
-    return
+    magnitude = np.sqrt((derivX**2)+(derivY**2))
+    direction = np.arctan2(derivY,derivX)
+    return direction, magnitude
 
 
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
