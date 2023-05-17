@@ -81,8 +81,8 @@ def calculateGaussian1cell(x,y, sigma):
 def GaussianFilter(window_size, sigma):
     maxX = window_size//2
     minX = -maxX
-    maxY = minX
-    minY = maxX
+    maxY = maxX
+    minY = minX
 
     G = np.zeros((window_size,window_size))
     for x in range(minX, maxX+1):
@@ -109,7 +109,8 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-
+    G = cv2.getGaussianKernel(k_size, 1)  # 1D array
+    G2 = G.dot(G.T)  # 2D array
     return
 
 
