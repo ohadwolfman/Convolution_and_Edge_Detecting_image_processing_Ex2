@@ -52,16 +52,23 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     """
     Calculate gradient of an image
-    :param in_image: Grayscale iamge
+    :param in_image: Grayscale image
     :return: (directions, magnitude)
     """
-    derivKernel = np.array([1,0,-1])
-    derivX = conv2D(in_image,derivKernel.transpose())
-    derivY = conv2D(in_image,derivKernel)
+    derivative = np.array([[0, 0, 0], [1, 0, -1], [0, 0, 0]])
 
-    magnitude = np.sqrt((derivX**2)+(derivY**2))
-    direction = np.arctan2(derivY,derivX)
+    # Compute row derivative using convolution with [1, 0, -1] kernel
+    dx = conv2D(in_image, derivative)
+
+    # Compute column derivative using convolution with [1, 0, -1]T kernel
+    dy = conv2D(in_image, derivative.T)
+
+    # Compute magnitude and direction
+    magnitude = np.sqrt(np.power(dx, 2) + np.power(dy, 2))
+    direction = np.arctan2(dy, dx)
+
     return direction, magnitude
+
 
 def calculateGaussian1cell(x,y, sigma):
     """                                                 Y
@@ -79,7 +86,7 @@ def calculateGaussian1cell(x,y, sigma):
     return (1/(2 * np.pi * (sigma**2))) * np.exp(-(x**2+y**2) / (2*(sigma**2)))
 
 def GaussianFilter(window_size, sigma):
-    maxX = window_size//2
+    maxX = -(window_size//2)  # We want to avoid reaching to the edges of the image
     minX = -maxX
     maxY = maxX
     minY = minX
