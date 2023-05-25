@@ -98,15 +98,21 @@ def GaussianFilter(window_size, sigma):
             G[x-minX, y-minY] = v
     return G
 
+def kernel_sigma(kernel_size: int) -> float:
+    return 0.3 * ((kernel_size - 1) * 0.5 - 1) + 0.8
+
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     """
-    Blur an image using a Gaussian kernel
+    Blur an image using a Gaussian kernel, Using the previous functions
     :param in_image: Input image
     :param k_size: Kernel size
     :return: The Blurred image
     """
-
-    return
+    X,Y = in_image.shape
+    for row in range(X):
+        for col in range(Y):
+            in_image[row][col] = calculateGaussian1cell(row,col, 1)
+    return in_image
 
 
 def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
@@ -116,10 +122,13 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-    G = cv2.getGaussianKernel(k_size, 1)  # 1D array
-    G2 = G.dot(G.T)  # 2D array
+    kernel1D = cv2.getGaussianKernel(k_size, kernel_sigma(k_size))  # 1D array
+    kernel2D = np.dot(kernel1D, kernel1D.T)  # 2D array
+    # print(np.sum(G2))  # =>The sum of all the values in this 2D matrix is 1 or very close
 
-    return
+    return conv2D(in_image,kernel2D)
+
+    # We could use also:     return cv2.filter2D(in_image, -1, kernel2D, borderType=cv2.BORDER_REPLICATE)
 
 
 def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
@@ -128,8 +137,9 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
     :param img: Input image
     :return: Edge matrix
     """
-
-    return
+    dev_simple_matrix = np.array([[-1, 0, 1], [0, 0, 0], [-1, 0, 1]])
+    after_lap_conv = conv2D(img, dev_simple_matrix)
+    return zeroCrossSearcher(after_lap_conv)
 
 
 def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
@@ -138,9 +148,31 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     :param img: Input image
     :return: Edge matrix
     """
+    # Define the Laplacian of Gaussian (LoG) filter
+    # The Laplacian is 2nd order derivative
+    laplacian_matrix = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
 
-    return
+    # Smooth with 2D Gaussian
+    newImage = blurImage2(img,5)
 
+    # Apply Laplacian filter - Convolve the image with the LoG filter
+    newImage = conv2D(newImage,laplacian_matrix)
+
+    # Find zero crossings
+    return zeroCrossSearcher(newImage)
+
+
+def zeroCrossSearcher(mat: np.ndarray) -> np.ndarray:
+    edges = np.zeros_like(mat)
+
+    for i in range(1, mat.shape[0] - 1):
+        for j in range(1, mat.shape[1] - 1):
+            if mat[i, j] == 0:
+                edges[i, j] = 255
+            elif (mat[i - 1, j] * mat[i + 1, j] < 0) or (mat[i, j - 1] * mat[i, j + 1] < 0):
+                edges[i, j] = 255
+
+    return edges
 
 def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     """

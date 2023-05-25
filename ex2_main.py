@@ -163,8 +163,8 @@ def main():
     # conv1Demo() V
     # conv2Demo() V
     # derivDemo() V
-    blurDemo()
-    # edgeDemo()
+    # blurDemo() v
+    # edgeDemo() V
     # houghDemo()
     # biliteralFilterDemo()
 
