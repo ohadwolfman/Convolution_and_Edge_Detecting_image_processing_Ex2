@@ -184,8 +184,46 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     :return: A list containing the detected circles,
                 [(x,y,radius),(x,y,radius),...]
     """
+    img = img.astype(np.uint8)  # Convert image to np.uint8
 
-    return
+    edges = cv2.Canny(img, 50, 150)  # Detect edges using Canny edge detection
+
+    rows, cols = img.shape
+    dMax = int((rows ** 2 + cols ** 2) ** 0.5)
+    accumulator = np.zeros((rows, cols, dMax), dtype=np.uint64)  # Use uint64 for accumulator
+
+    for ri in range(rows):
+        for ci in range(cols):
+            if edges[ri, ci] > 0:  # Only process edge pixels
+                for r in range(min_radius, max_radius + 1):
+                    for theta in range(360):
+                        a = ri - int(r * np.cos(np.deg2rad(theta)))  # Calculate center x-coordinate
+                        b = ci - int(r * np.sin(np.deg2rad(theta)))  # Calculate center y-coordinate
+                        if a >= 0 and a < rows and b >= 0 and b < cols:
+                            accumulator[a, b, r] += 1  # Increment accumulator for each possible circle
+
+    circles = []
+    for a in range(rows):
+        for b in range(cols):
+            for r in range(min_radius, max_radius + 1):
+                if accumulator[a, b, r] > 0:  # If accumulator value is above threshold, consider it a circle
+                    circles.append((a, b, r))
+
+    return circles
+
+    # rows, cols = img.shape
+    # dMax = int((rows**2 + cols**2)**0.5)
+    # H = np.zeros((rows, cols, dMax))
+    # idx = np.argwhere(img)
+    # r,c = idx[:,0], idx[:,1]
+    # for i in range(len(r)):
+    #     for a in range(rows):
+    #         for b in range(cols):
+    #             ri, ci = r[i], c[i]
+    #             di = int(((ri-a)**2 + (ci-b)**2)**0.5)
+    #             if di > 0 and di <dMax:
+    #                 H[a,b,di]+=1
+    # return H
 
 
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (

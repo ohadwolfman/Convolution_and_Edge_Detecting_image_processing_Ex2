@@ -119,7 +119,7 @@ def houghDemo():
     min_r, max_r = 50, 100
 
     # # TEST WITH YOUR IMPLEMENT ONLY
-    # img = cv2.imread('input/pool_balls.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    # img = cv2.imread('images/pool_balls.jpg', cv2.IMREAD_GRAYSCALE) / 255
     # min_r, max_r = 10, 20
 
     # Mine
@@ -165,7 +165,7 @@ def main():
     # derivDemo() V
     # blurDemo() v
     # edgeDemo() V
-    # houghDemo()
+    houghDemo()
     # biliteralFilterDemo()
 
 
