@@ -165,8 +165,8 @@ def main():
     # derivDemo() V
     # blurDemo() v
     # edgeDemo() V
-    houghDemo()
-    # biliteralFilterDemo()
+    # houghDemo()
+    biliteralFilterDemo()
 
 
 if __name__ == '__main__':

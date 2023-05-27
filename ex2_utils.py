@@ -199,7 +199,7 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                     for theta in range(360):
                         a = ri - int(r * np.cos(np.deg2rad(theta)))  # Calculate center x-coordinate
                         b = ci - int(r * np.sin(np.deg2rad(theta)))  # Calculate center y-coordinate
-                        if a >= 0 and a < rows and b >= 0 and b < cols:
+                        if 0 <= a < rows and 0 <= b < cols:
                             accumulator[a, b, r] += 1  # Increment accumulator for each possible circle
 
     circles = []
@@ -235,5 +235,31 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     :param sigma_space: represents the filter sigma in the coordinate.
     :return: OpenCV implementation, my implementation
     """
+    # OpenCV implementation
+    opencv_filtered_image = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space)
 
-    return
+    # Custom implementation
+    height, width = in_image.shape[:2]
+    my_filtered_image = np.zeros_like(in_image, dtype=np.float32)
+
+    # Pad the input image
+    padded_image = np.pad(in_image, k_size // 2, mode='constant')
+
+    # Calculate spatial Gaussian kernel
+    spatial_kernel = np.zeros((k_size, k_size))
+    for i in range(k_size):
+        for j in range(k_size):
+            spatial_kernel[i, j] = np.exp(-((i - k_size // 2) ** 2 + (j - k_size // 2) ** 2) / (2 * sigma_space ** 2))
+
+    for i in range(height):
+        for j in range(width):
+            center_pixel = padded_image[i:i + k_size, j:j + k_size]
+            color_kernel = np.exp(-(center_pixel - in_image[i, j]) ** 2 / (2 * sigma_color ** 2))
+            bilateral_kernel = color_kernel * spatial_kernel
+
+            # Normalize the kernel weights
+            normalized_weights = bilateral_kernel / np.sum(bilateral_kernel)
+
+            my_filtered_image[i, j] = np.sum(center_pixel * normalized_weights)
+
+    return opencv_filtered_image, my_filtered_image.astype(np.uint8)
