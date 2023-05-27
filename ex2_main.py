@@ -160,12 +160,12 @@ def biliteralFilterDemo():
 
 def main():
     print("ID:", myID())
-    # conv1Demo() V
-    # conv2Demo() V
-    # derivDemo() V
-    # blurDemo() v
-    # edgeDemo() V
-    # houghDemo()
+    conv1Demo()
+    conv2Demo()
+    derivDemo()
+    blurDemo()
+    edgeDemo()
+    houghDemo()
     biliteralFilterDemo()
 
 
