@@ -2,6 +2,7 @@ import math
 import numpy as np
 import cv2
 
+
 def myID() -> np.int:
     """
     Return my ID (not the friend's ID I copied from)
@@ -9,6 +10,7 @@ def myID() -> np.int:
     """
 
     return 316552496
+
 
 def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     """
@@ -24,7 +26,7 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     #   {‘full’ - output shape: (a+v-1 , 1),
     #   ‘valid’ - output shape: max(a, v) - min(a, v) + 1,
     #   ‘same’ - output shape: Max(a,v) }
-    return np.convolve(in_signal,k_size,"full")
+    return np.convolve(in_signal, k_size, "full")
 
 
 def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
@@ -70,7 +72,7 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     return direction, magnitude
 
 
-def calculateGaussian1cell(x,y, sigma):
+def calculateGaussian1cell(x, y, sigma):
     """                                                 Y
     Gaussian mask will be created like this:     -1    0    1
                                              -1 [-1,-1|-1,0|-1,1]
@@ -83,23 +85,26 @@ def calculateGaussian1cell(x,y, sigma):
             which means more weight to the central pixels
     :return: float number [0,1]:
     """
-    return (1/(2 * np.pi * (sigma**2))) * np.exp(-(x**2+y**2) / (2*(sigma**2)))
+    return (1 / (2 * np.pi * (sigma ** 2))) * np.exp(-(x ** 2 + y ** 2) / (2 * (sigma ** 2)))
+
 
 def GaussianFilter(window_size, sigma):
-    maxX = -(window_size//2)  # We want to avoid reaching to the edges of the image
+    maxX = -(window_size // 2)  # We want to avoid reaching to the edges of the image
     minX = -maxX
     maxY = maxX
     minY = minX
 
-    G = np.zeros((window_size,window_size))
-    for x in range(minX, maxX+1):
-        for y in range(minY, maxY+1):
-            v = calculateGaussian1cell(x,y,sigma)
-            G[x-minX, y-minY] = v
+    G = np.zeros((window_size, window_size))
+    for x in range(minX, maxX + 1):
+        for y in range(minY, maxY + 1):
+            v = calculateGaussian1cell(x, y, sigma)
+            G[x - minX, y - minY] = v
     return G
+
 
 def kernel_sigma(kernel_size: int) -> float:
     return 0.3 * ((kernel_size - 1) * 0.5 - 1) + 0.8
+
 
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     """
@@ -108,10 +113,10 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-    X,Y = in_image.shape
+    X, Y = in_image.shape
     for row in range(X):
         for col in range(Y):
-            in_image[row][col] = calculateGaussian1cell(row,col, 1)
+            in_image[row][col] = calculateGaussian1cell(row, col, 1)
     return in_image
 
 
@@ -126,7 +131,7 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     kernel2D = np.dot(kernel1D, kernel1D.T)  # 2D array
     # print(np.sum(G2))  # =>The sum of all the values in this 2D matrix is 1 or very close
 
-    return conv2D(in_image,kernel2D)
+    return conv2D(in_image, kernel2D)
 
     # We could use also:     return cv2.filter2D(in_image, -1, kernel2D, borderType=cv2.BORDER_REPLICATE)
 
@@ -153,10 +158,10 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     laplacian_matrix = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
 
     # Smooth with 2D Gaussian
-    newImage = blurImage2(img,5)
+    newImage = blurImage2(img, 5)
 
     # Apply Laplacian filter - Convolve the image with the LoG filter
-    newImage = conv2D(newImage,laplacian_matrix)
+    newImage = conv2D(newImage, laplacian_matrix)
 
     # Find zero crossings
     return zeroCrossSearcher(newImage)
@@ -173,6 +178,7 @@ def zeroCrossSearcher(mat: np.ndarray) -> np.ndarray:
                 edges[i, j] = 255
 
     return edges
+
 
 def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     """
@@ -226,6 +232,22 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     # return H
 
 
+def bilateral(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float):
+    img = cv2.imread('eye.jpg', cv2.IMREAD_GRAYSCALE) / 255.0
+    y, x = 300, 667
+    pivot_v = img[y, x]
+    neighborhood = img[
+                   y - k_size:y + k_size + 1,
+                   x - k_size:x + k_size + 1]
+    sigma = .01
+    diff = pivot_v - neighborhood
+    diff_gau = np.exp(-np.power(diff, 2) / (2 * sigma))
+    gaus = cv2.getGaussianKernel(2 * k_size + 1, k_size)
+    gaus = gaus.dot(gaus.T)
+    combo = gaus * diff_gau
+    result = combo * neighborhood / combo.sum()
+
+
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
         np.ndarray, np.ndarray):
     """
@@ -239,7 +261,7 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     opencv_filtered_image = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space)
 
     # Custom implementation
-    height, width = in_image.shape[:2]
+    height, width = in_image.shape
     my_filtered_image = np.zeros_like(in_image, dtype=np.float32)
 
     # Pad the input image
@@ -249,8 +271,10 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     spatial_kernel = np.zeros((k_size, k_size))
     for i in range(k_size):
         for j in range(k_size):
-            spatial_kernel[i, j] = np.exp(-((i - k_size // 2) ** 2 + (j - k_size // 2) ** 2) / (2 * sigma_space ** 2))
+            d = np.sqrt(((i - k_size // 2) ** 2 + (j - k_size // 2) ** 2))
+            spatial_kernel[i, j] = np.exp(-d ** 2 / (2 * sigma_space ** 2))
 
+    # Implement the bilateral filter
     for i in range(height):
         for j in range(width):
             center_pixel = padded_image[i:i + k_size, j:j + k_size]
