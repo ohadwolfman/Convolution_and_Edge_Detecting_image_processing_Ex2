@@ -257,6 +257,9 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     :param sigma_space: represents the filter sigma in the coordinate.
     :return: OpenCV implementation, my implementation
     """
+
+    in_image = in_image.astype('float32')
+
     # OpenCV implementation
     opencv_filtered_image = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space)
 
