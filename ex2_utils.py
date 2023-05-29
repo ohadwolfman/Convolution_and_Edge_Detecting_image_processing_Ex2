@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import cv2
+from matplotlib import pyplot as plt
 
 
 def myID() -> np.int:
@@ -187,8 +188,7 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     :param img: Input image
     :param min_radius: Minimum circle radius
     :param max_radius: Maximum circle radius
-    :return: A list containing the detected circles,
-                [(x,y,radius),(x,y,radius),...]
+    :return: A list containing the detected circles, [(x,y,radius),(x,y,radius),...]
     """
     img = img.astype(np.uint8)  # Convert image to np.uint8
 
@@ -216,6 +216,21 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                     circles.append((a, b, r))
 
     return circles
+
+# def f_houghCircles(img):
+#     numRows, numCols = img.shape[0], img.shape[1]
+#     dMax = int((numRows ** 2 + numCols ** 2) ** 0.5)
+#     newImage = np.zeros((numRows, numCols, dMax))
+#     idx = np.argwhere(img)
+#     r, c = idx[:, 0], idx[:, 1]
+#     for i in range(len(r)):
+#         for a in range(numRows):
+#             for b in range(numCols):
+#                 ri, ci = r[i], c[i]
+#                 di = int(((ri - a) ** 2 + (ci - b) ** 2) ** 0.5)
+#                 if 0 < di < dMax:
+#                     newImage[a, b, di] += 1
+#     return newImage
 
     # rows, cols = img.shape
     # dMax = int((rows**2 + cols**2)**0.5)
